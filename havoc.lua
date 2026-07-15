@@ -11,7 +11,7 @@ local queueteleport = queue_on_teleport or (syn and syn.queue_on_teleport) or (f
 
 if queueteleport then
     LocalPlayer.OnTeleport:Connect(function(State)
-        queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/esp.lua'))()")
+        queueteleport("loadstring(game:HttpGet('oadstring(game:HttpGet('https://raw.githubusercontent.com/NotDev69/esp/main/havoc.lua'))()")
     end)
 end
 
