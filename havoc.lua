@@ -11,7 +11,7 @@ local queueteleport = queue_on_teleport or (syn and syn.queue_on_teleport) or (f
 
 if queueteleport then
     LocalPlayer.OnTeleport:Connect(function(State)
-        queueteleport("loadstring(game:HttpGet('oadstring(game:HttpGet('https://raw.githubusercontent.com/NotDev69/esp/main/havoc.lua'))()")
+        queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/NotDev69/esp/main/havoc.lua'))()")
     end)
 end
 
@@ -158,51 +158,33 @@ local function IsNPC(entity)
     return false
 end
 
--- ==================== Check if entity is a Hostage ====================
+-- ==================== Check if entity is a Hostage (DIRECT PATH ONLY) ====================
 
 local function IsHostage(entity)
     if not entity or not entity:IsA("Model") then return false end
-    
-    -- Check by path: workspace.Buildings.Loots.Objects.Hostage
-    local parent = entity.Parent
-    while parent do
-        if parent.Name == "Hostage" and parent.Parent and parent.Parent.Name == "Objects" and 
-           parent.Parent.Parent and parent.Parent.Parent.Name == "Loots" and
-           parent.Parent.Parent.Parent and parent.Parent.Parent.Parent.Name == "Buildings" then
-            return true
-        end
-        parent = parent.Parent
-    end
-    
-    -- Check by attribute HostageId
-    local attrs = entity:GetAttributes()
-    if attrs and attrs.HostageId then
-        return true
-    end
-    
-    -- Check by name
+    -- Check by name first (fastest)
     if entity.Name == "Hostage" then
         return true
     end
-    
     return false
 end
 
--- Find all Hostages in the game
+-- Find all Hostages - ONLY in workspace.Buildings.Loots.Objects
 local function FindAllHostages()
     local hostages = {}
     local buildings = workspace:FindFirstChild("Buildings")
-    if buildings then
-        local loots = buildings:FindFirstChild("Loots")
-        if loots then
-            local objects = loots:FindFirstChild("Objects")
-            if objects then
-                for _, child in ipairs(objects:GetChildren()) do
-                    if child.Name == "Hostage" and child:IsA("Model") then
-                        table.insert(hostages, child)
-                    end
-                end
-            end
+    if not buildings then return hostages end
+    
+    local loots = buildings:FindFirstChild("Loots")
+    if not loots then return hostages end
+    
+    local objects = loots:FindFirstChild("Objects")
+    if not objects then return hostages end
+    
+    -- Only check children of Objects folder
+    for _, child in ipairs(objects:GetChildren()) do
+        if child:IsA("Model") and child.Name == "Hostage" then
+            table.insert(hostages, child)
         end
     end
     return hostages
@@ -783,7 +765,7 @@ local function InitHostage(hostage)
     end)()
 end
 
--- Find and initialize all Hostages
+-- Find and initialize all Hostages (ONLY in Buildings.Loots.Objects)
 local function InitAllHostages()
     local hostages = FindAllHostages()
     for _, hostage in ipairs(hostages) do
@@ -803,7 +785,7 @@ end
 local function TryInitNPC(model)
     if not model:IsA("Model") then return end
     
-    -- Check if it's a Hostage
+    -- Check if it's a Hostage (by name)
     if IsHostage(model) then
         if not trackedHostages[model] then
             InitHostage(model)
@@ -855,7 +837,7 @@ local function SetupNPCWatcher()
         end
     end)
     
-    -- Also watch for new Hostages specifically
+    -- Watch specifically for new Hostages in Buildings.Loots.Objects
     local buildings = workspace:FindFirstChild("Buildings")
     if buildings then
         buildings.DescendantAdded:Connect(function(descendant)
